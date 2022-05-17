@@ -48,15 +48,27 @@ node = g
   .classed("node", true)
   .classed("fixed", d => d.fx !== undefined);
 
-// Zoom functinos
-svg.call(d3.zoom()
-    // .extent([[0, 0], [width, height]])
-    // .scaleExtent([1, 8])
-    .on("zoom", zoomed));
+// Zoom functionality
+svg .call(d3.zoom().on("zoom", zoomed));
+
 function zoomed({transform}) {
+  console.log(transform);
   g.attr("transform", transform);
 }
+const zoom = d3.zoom()
+      .scaleExtent([1, 40])
+      .on("zoom", zoomed);
+      
+svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2));
 
+//Inititalize 0,0 at the center of the screen
+// zoomed({
+//   "k": 1,
+//   "x": 100,
+//   "y": 100
+//   // "x": width/2,
+//   // "y": height/2
+// })
 
 const simulation = d3
   .forceSimulation()
@@ -88,26 +100,11 @@ function tick() {
 function click(event, d) {
   //Change what happens when nodes are clicked here
   console.log("clicked", this);
-  // delete d.fx;
-  // delete d.fy;
-  d3.select(this).classed("fixed", false);
   simulation.alpha(1).restart();
 }
 
-// function dragstart() {
-//   //Change what happens when they are initially held down here
-//   console.log("dragstart", this);
-//   d3.select(this).classed("fixed", true);
-// }
-
-// function dragged(event, d) {
-//   //Change what happens while they are moving here
-//   console.log("dragging", this);
-//   d.fx = event.x;
-//   d.fy = event.y;
-//   simulation.alpha(1).restart();
-// }
 function dragstart(event, d) {
+  //Change what happens when they are initially held down here
   if (!event.active) simulation.alphaTarget(0.3).restart();
   d.fx = d.x;
   d.fy = d.y;
@@ -115,11 +112,13 @@ function dragstart(event, d) {
 }
 
 function dragged(event, d) {
+  //Change what happens while they are moving here
   d.fx = event.x;
   d.fy = event.y;
 }
 
 function dragended(event, d) {
+  //Change what happens while they stop moving here
   if (!event.active) simulation.alphaTarget(0);
   d.fx = null;
   d.fy = null;
