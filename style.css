@@ -1,2 +1,20 @@
+/* Canvas Nicifying */
 html, body { margin:0; padding:0; overflow:hidden }
 svg { position:fixed; top:0; left:0; height:100%; width:100% }  
+
+/* Component Attributes */
+.link {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.node {
+  cursor: move;
+  fill: #ccc;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.node.fixed {
+  fill: #f00;
+}
