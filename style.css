@@ -9,7 +9,7 @@ svg { position:fixed; top:0; left:0; height:100%; width:100% }
 }
 
 .node {
-  cursor: move;
+  cursor: grab;
   fill: #ccc;
   stroke: #000;
   stroke-width: 1.5px;

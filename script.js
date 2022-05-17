@@ -31,13 +31,16 @@ const graph = ({
   })
 
 
-const svg = d3.select('svg g')/*.attr("transform", "translate("+width/2+","+height/2+")")*/,
-link = svg
+// Create the SVG, links, and nodes
+const svg = d3.select("svg")
+const g = svg.append("g")
+  .attr("transform", "translate("+width/2+","+height/2+")"),
+link = g
   .selectAll(".link")
   .data(graph.links)
   .join("line")
   .classed("link", true),
-node = svg
+node = g
   .selectAll(".node")
   .data(graph.nodes)
   .join("circle")
@@ -45,19 +48,29 @@ node = svg
   .classed("node", true)
   .classed("fixed", d => d.fx !== undefined);
 
+// Zoom functinos
+svg.call(d3.zoom()
+    // .extent([[0, 0], [width, height]])
+    // .scaleExtent([1, 8])
+    .on("zoom", zoomed));
+function zoomed({transform}) {
+  g.attr("transform", transform);
+}
+
 
 const simulation = d3
   .forceSimulation()
   .nodes(graph.nodes)
   .force("charge", d3.forceManyBody())
-  .force("center", d3.forceCenter(width / 2, height / 2))
+  .force("center", d3.forceCenter())
   .force("link", d3.forceLink(graph.links))
   .on("tick", tick);
 
 const dragHandle = d3
   .drag()
   .on("start", dragstart)
-  .on("drag", dragged);
+  .on("drag", dragged)
+  .on("end", dragended);
 
 node.call(dragHandle).on("click", click);
 
@@ -73,22 +86,42 @@ function tick() {
 }
 
 function click(event, d) {
-  delete d.fx;
-  delete d.fy;
+  //Change what happens when nodes are clicked here
+  console.log("clicked", this);
+  // delete d.fx;
+  // delete d.fy;
   d3.select(this).classed("fixed", false);
   simulation.alpha(1).restart();
 }
 
-function dragstart() {
+// function dragstart() {
+//   //Change what happens when they are initially held down here
+//   console.log("dragstart", this);
+//   d3.select(this).classed("fixed", true);
+// }
+
+// function dragged(event, d) {
+//   //Change what happens while they are moving here
+//   console.log("dragging", this);
+//   d.fx = event.x;
+//   d.fy = event.y;
+//   simulation.alpha(1).restart();
+// }
+function dragstart(event, d) {
+  if (!event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
   d3.select(this).classed("fixed", true);
 }
 
 function dragged(event, d) {
-  d.fx = clamp(event.x, 0, width);
-  d.fy = clamp(event.y, 0, height);
-  simulation.alpha(1).restart();
+  d.fx = event.x;
+  d.fy = event.y;
 }
 
-function clamp(x, lo, hi) {
-  return x < lo ? lo : x > hi ? hi : x;
+function dragended(event, d) {
+  if (!event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+  d3.select(this).classed("fixed", false);
 }
